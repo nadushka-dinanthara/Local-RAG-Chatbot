@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
 import streamlit as st
 from src.generate import generate_answer
 

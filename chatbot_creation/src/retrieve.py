@@ -1,5 +1,5 @@
 import psycopg2
-from src.embed import model  # reuse the same loaded model
+from embed import model  # reuse the same loaded model
 
 conn = psycopg2.connect(
     host="localhost",
@@ -28,7 +28,7 @@ def retrieve_relevant_chunks(question, top_k=3):
     return results
 
 if __name__ == "__main__":
-    question = "How does DeepCorrect fix image distortions?"
+    question = "where do the kandy is located?"
     results = retrieve_relevant_chunks(question)
 
     for i, (chunk_text, distance) in enumerate(results):

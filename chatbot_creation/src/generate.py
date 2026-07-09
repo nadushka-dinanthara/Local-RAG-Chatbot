@@ -1,12 +1,16 @@
-import requests
 from src.retrieve import retrieve_relevant_chunks
+from rerank import rerank_chunks
+import requests
 
 def generate_answer(question, top_k=3):
-    # Step 1: get relevant chunks
-    results = retrieve_relevant_chunks(question, top_k)
-    context = "\n\n".join([chunk_text for chunk_text, distance in results])
+    # Stage 1: cast a wider net (e.g. top 10 candidates)
+    candidates = retrieve_relevant_chunks(question, top_k=10)
 
-    # Step 2: build the prompt
+    # Stage 2: rerank and narrow down to the best top_k
+    top_chunks = rerank_chunks(question, candidates, top_k=top_k)
+
+    context = "\n\n".join(top_chunks)
+    
     prompt = f"""Answer the question using only the context below. If the context doesn't contain the answer, say so.
 
 Context:
@@ -16,7 +20,6 @@ Question: {question}
 
 Answer:"""
 
-    # Step 3: send to Ollama's local API
     response = requests.post(
         "http://localhost:11434/api/generate",
         json={
@@ -27,8 +30,3 @@ Answer:"""
     )
 
     return response.json()["response"]
-
-if __name__ == "__main__":
-    question = "IS Sigiriya is a UNESCO World Heritage Site in Sri Lanka?"
-    answer = generate_answer(question)
-    print("Answer:\n", answer)
